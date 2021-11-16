@@ -291,13 +291,26 @@ create_hook = client.create_hook_subscription("opportunity.add", "URL")
 #### Update Hook Subscription
 here you can update a hook, send the hook id, event and url
 ```python
-update_hook = petition.update_hook_subscription('ID', 'opportunity.delete', 'URL')
+update_hook = client.update_hook_subscription('ID', 'opportunity.delete', 'URL')
 ```
 
 #### Delete Hook Subscription
 here you can delete a hook subscription, is obligatory to send the hook id
 ```python
-delete_hook = petition.delete_hook_subscription('ID')
+delete_hook = client.delete_hook_subscription('ID')
+```
+
+#### Create a Tag
+Here you can get all available tags.
+```python
+tag_data = {
+  "category": {
+    "id": 0
+  },
+  "description": "string",
+  "name": "string"
+}
+create_tag = client.create_tag(**tag_data)
 ```
 
 #### List All Tags
@@ -323,7 +336,7 @@ The result will be a dict with contact IDs as keys and statuses as values.
 #### Remove Tag
 Here you can remove previously applied tag from a contact.
 ```python
-all_tags = remove_tag.list_tags('TAG_ID', 'CONTACT_ID')
+res = client.remove_tag('TAG_ID', 'CONTACT_ID')
 ```
 
 ## Error Handling
@@ -345,7 +358,7 @@ try:
                     print('Something is wrong with the data.')
                     print(e)
             except ConnectionError as e:
-                print('Something is wron with Infusionsoft connection.')
+                print('Something is wrong with the Infusionsoft connection.')
                 print(e)
         except TokenError as e:
             print('Something is wrong with one of the tokens.')

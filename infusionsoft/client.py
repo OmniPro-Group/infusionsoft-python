@@ -58,7 +58,7 @@ class Client:
     @staticmethod
     def parse_response(response):
         """
-            This method get the response request and returns json_data data or raise exceptions
+            This method gets the response request and returns json_data data or raise exceptions
             :param response:
             :return:
         """
@@ -92,6 +92,15 @@ class Client:
         elif response.status_code == 404:
             raise ConnectionError(
                 "The URL {0} retrieved an {1} error. Please check the URL and try again.\n"
+                "Raw message: {2}".format(
+                    response.url,
+                    response.status_code,
+                    response.text
+                )
+            )
+        elif response.status_code == 429:
+            raise ConnectionError(
+                "The URL {0} retrieved an {1} error. Rate limit quota violation. Quota limit exceeded\n"
                 "Raw message: {2}".format(
                     response.url,
                     response.status_code,
@@ -235,6 +244,18 @@ class Client:
             params.update(kwargs)
             return self._post('contacts', json_data=params)
         raise DataError("To create a contact is necessary a valid name and email")
+
+    def upsert_contact(self, **kwargs):
+        """
+            To upsert a contact
+            :param kwargs:
+            :return:
+        """
+        if kwargs is not None:
+            params = {}
+            params.update(kwargs)
+            return self._put('contacts', json_data=params)
+        raise DataError("To upsert a contact it is necessary to have a valid name and email")
 
     def delete_contact(self, id):
         """
@@ -419,7 +440,7 @@ class Client:
         if not id:
             raise DataError("The ID is required.")
 
-        endpoint = "tasks/{0}".format(id)
+        endpoint = "orders/{0}".format(id)
         return self._get(endpoint)
 
     def get_hook_events(self):
@@ -459,6 +480,34 @@ class Client:
         callback = "{0}/{1}".format("hooks", id)
         return self._delete(callback)
 
+    def create_tag(self, **kwargs):
+        """
+        To create a tag
+        kwargs:{
+            "category": {
+                "id": 0
+            },
+            "description": "string",
+            "name": "string"
+        }
+
+        :return: {
+            "category": {
+                "description": "string",
+                "id": 0,
+                "name": "string"
+            },
+            "description": "string",
+            "id": 0,
+            "name": "string"
+        }
+        """
+        if kwargs is not None:
+            params = {}
+            params.update(kwargs)
+            return self._post('tags', json_data=params)
+        raise DataError("To create a tag it is necessary to have a valid name, description and category")
+
     def list_tags(self, **kwargs):
         """
         Get a list of available tags.
@@ -479,6 +528,13 @@ class Client:
         """
 
         return self._get('tags', **kwargs)
+
+    def retrieve_tag(self, id, **kwargs):
+        if not id:
+            raise DataError("The ID is required.")
+
+        endpoint = 'tags/{0}'.format(id)
+        return self._get(endpoint, **kwargs)
 
     def apply_tag(self, tag_id: int, contact_ids, **kwargs):
         """
